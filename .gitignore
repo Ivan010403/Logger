@@ -1,0 +1,4 @@
+/.vscode/
+*.app
+*.txt
+/build/
