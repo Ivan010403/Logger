@@ -41,6 +41,6 @@ void Logger::createLog(std::string_view message, std::string_view level) noexcep
     char timestamp[20];
     strftime(timestamp, sizeof(timestamp), "%d.%m.%Y %H:%M:%S", timeinfo);
 
-    // не будет ли быстрее сделать новую строку?
     *file_ptr_ << timestamp << level << message << '\n';
+    (*file_ptr_).flush();
 }
