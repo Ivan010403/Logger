@@ -1,14 +1,10 @@
 CC=g++
 CFLAGS=-std=c++17 -Wall -Wextra
-LDFLAGS=
-SOURCES=main.cpp hello.cpp factorial.cpp
-OBJECTS=$(SOURCES:.cpp=.o)
-EXECUTABLE=app
 
-all: logger_lib app
+all: logger_lib app 
 
 app: main.o
-	$(CC) $(CFLAGS) ./build/main.o liblogger.so -o app.out
+	$(CC) $(CFLAGS) ./build/main.o -L./lib -llogger -o ./build/app.out -Wl,-rpath,../lib/
 
 main.o:
 	$(CC) $(CFLAGS) -I./lib/include/ -c ./src/main.cpp -o ./build/main.o
@@ -18,3 +14,6 @@ logger_lib: logger.o
 
 logger.o:
 	$(CC) $(CFLAGS) -fPIC -I./lib/include/ -c ./lib/src/logger.cpp -o ./build/logger.o
+
+clean:
+	rm -f build/*.o
