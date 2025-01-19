@@ -12,6 +12,10 @@ Logger::Logger(const Logger& src) :
         filename_(src.filename_),
         default_level_(src.default_level_) {}
 
+LoggerLevel Logger::getDefaultLevel() const noexcept {
+    return default_level_;
+}
+
 void Logger::changeLevel(LoggerLevel new_level) noexcept {
     default_level_ = new_level;
 }
@@ -28,7 +32,7 @@ void Logger::logWarn(std::string_view message) const noexcept {
     }
 }
 
-void Logger::logError(std::string_view message) const noexcept { // maybe noexcept(true)?
+void Logger::logError(std::string_view message) const noexcept {
     if (default_level_ <= LoggerLevel::ERROR) {
         createLog(message, ERROR_P);
     }

@@ -5,6 +5,9 @@
 #include "logger.h"
 
 
+/*
+    These structures are used for improving passing data into thread (decreasing number of parameters)
+*/
 struct ThreadData {    
     LoggerLevel log_level;
     std::string message;
@@ -40,13 +43,9 @@ void sendLogs(const Logger& logger, const ThreadData& data, Flags& flags, std::c
     }
 }
 
-// что если нет такого файла? или он был удален!
-
-
 // forward declarations of simple functions for validation data from users
 void enterCorrectData(std::string& filename, int& level);
 void enterCorrectData(int& level);
-
 
 int main() { 
     ThreadData data;
@@ -57,6 +56,7 @@ int main() {
     
     std::string filename;
     int level;
+    char symbol;
 
     enterCorrectData(filename, level);
     Logger logger(filename, static_cast<LoggerLevel>(level));
@@ -70,6 +70,7 @@ int main() {
                      "- Send message - write \"0\"\n"
                      "- Change default level of logging - write \"1\"\n"
                      "- Exit the program - write \"2\"\n";
+        std::cin >> choice;
         enterCorrectData(choice);
 
         switch (choice)
@@ -89,9 +90,17 @@ int main() {
                     break;
                 }
 
-                std::cout << "Enter the level of message (0-INFO, 1-WARN, 2-ERROR):\n";
-                enterCorrectData(level);
-                data.log_level = static_cast<LoggerLevel>(level);
+                std::cout << "Enter the level of message (0-INFO, 1-WARN, 2-ERROR, ENTER-default level):\n";                
+                symbol = std::cin.get();
+                
+                if (symbol == '\n') {
+                    data.log_level = logger.getDefaultLevel();
+                } 
+                else {
+                    level = static_cast<int>(symbol) - 48;
+                    enterCorrectData(level);
+                    data.log_level = static_cast<LoggerLevel>(level);
+                }
 
                 
                 flags.logger_notified = true;
@@ -102,6 +111,7 @@ int main() {
         
         case 1:
             std::cout << "Enter a new default level (0-INFO, 1-WARN, 2-ERROR):\n";
+            std::cin >> level;
             enterCorrectData(level);
 
             logger.changeLevel(static_cast<LoggerLevel>(level));
@@ -141,8 +151,6 @@ void enterCorrectData(std::string& filename, int& level) {
 }
 
 void enterCorrectData(int& level) {
-    std::cin >> level;
-
     while (level < 0 or level > 2 or std::cin.fail()) {
         std::cin.clear();
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
