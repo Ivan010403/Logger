@@ -2,7 +2,6 @@
 *.app
 *.txt
 *.out
-/build/
 *.so
 *.o
 
