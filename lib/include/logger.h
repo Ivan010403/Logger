@@ -24,14 +24,14 @@ public:
 
     void changeLevel(LoggerLevel new_level) noexcept;
 
-    void logInfo(std::string_view message) noexcept;
+    void logInfo(std::string_view message) const noexcept;
 
-    void logWarn(std::string_view message) noexcept;
+    void logWarn(std::string_view message) const noexcept;
 
-    void logError(std::string_view message) noexcept;
+    void logError(std::string_view message) const noexcept;
 
 private:
-    void createLog(std::string_view message, std::string_view level) noexcept;
+    void createLog(std::string_view message, std::string_view level) const noexcept;
     
     // не забыть про выравнивание!
     std::shared_ptr<std::ofstream> file_ptr_;

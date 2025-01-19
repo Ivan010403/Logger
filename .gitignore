@@ -3,3 +3,5 @@
 *.txt
 *.out
 /build/
+*.so
+*.o

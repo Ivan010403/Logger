@@ -1,4 +1,4 @@
-#include "../include/logger.h"
+#include "logger.h"
 
 Logger::Logger(const std::string filename, LoggerLevel default_level) : 
         filename_(filename), 
@@ -16,25 +16,25 @@ void Logger::changeLevel(LoggerLevel new_level) noexcept {
     default_level_ = new_level;
 }
 
-void Logger::logInfo(std::string_view message) noexcept {
+void Logger::logInfo(std::string_view message) const noexcept {
     if (default_level_ <= LoggerLevel::INFO) {
         createLog(message, INFO_P);
     }
 }
 
-void Logger::logWarn(std::string_view message) noexcept {
+void Logger::logWarn(std::string_view message) const noexcept {
     if (default_level_ <= LoggerLevel::WARN) {
         createLog(message, WARN_P);
     }
 }
 
-void Logger::logError(std::string_view message) noexcept { // maybe noexcept(true)?
+void Logger::logError(std::string_view message) const noexcept { // maybe noexcept(true)?
     if (default_level_ <= LoggerLevel::ERROR) {
         createLog(message, ERROR_P);
     }
 }
 
-void Logger::createLog(std::string_view message, std::string_view level) noexcept {
+void Logger::createLog(std::string_view message, std::string_view level) const noexcept {
     time_t now = time(0);
     tm* timeinfo = localtime(&now);
 

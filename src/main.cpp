@@ -2,8 +2,8 @@
 #include <thread>
 #include <mutex>
 #include <condition_variable>
+#include "logger.h"
 
-#include "../lib/include/logger.h"
 
 struct ThreadData {    
     LoggerLevel log_level;
@@ -16,7 +16,8 @@ struct Flags {
     bool main_notified = true;
 };
 
-void sendLogs(Logger& logger, const ThreadData& data, Flags& flags, std::condition_variable& cv, std::mutex& mtx) noexcept {
+
+void sendLogs(const Logger& logger, const ThreadData& data, Flags& flags, std::condition_variable& cv, std::mutex& mtx) {
     while (!flags.done) {
         std::unique_lock<std::mutex> locker(mtx);
 
@@ -43,11 +44,11 @@ void sendLogs(Logger& logger, const ThreadData& data, Flags& flags, std::conditi
 
 
 // forward declarations of simple functions for validation data from users
-void validateData(std::string& filename, int& level);
-void validateData(int& level);
+void enterCorrectData(std::string& filename, int& level);
+void enterCorrectData(int& level);
 
 
-int main(int argc, char *argv[]) {    
+int main() { 
     ThreadData data;
     Flags flags;
 
@@ -57,10 +58,10 @@ int main(int argc, char *argv[]) {
     std::string filename;
     int level;
 
-    validateData(filename, level);
+    enterCorrectData(filename, level);
     Logger logger(filename, static_cast<LoggerLevel>(level));
     
-    std::thread logger_thread(sendLogs, std::ref(logger), std::cref(data), std::ref(flags), std::ref(cv), std::ref(mtx));
+    std::thread logger_thread(sendLogs, std::cref(logger), std::cref(data), std::ref(flags), std::ref(cv), std::ref(mtx));
 
 
     int choice;
@@ -69,8 +70,7 @@ int main(int argc, char *argv[]) {
                      "- Send message - write \"0\"\n"
                      "- Change default level of logging - write \"1\"\n"
                      "- Exit the program - write \"2\"\n";
-        std::cin >> choice; 
-        validateData(choice);
+        enterCorrectData(choice);
 
         switch (choice)
         {
@@ -83,7 +83,6 @@ int main(int argc, char *argv[]) {
                 }
 
                 std::cout << "\nEnter the message ('q' for break):\n";
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
                 getline(std::cin, data.message);
                 
                 if (data.message[0] == 'q') {
@@ -91,8 +90,7 @@ int main(int argc, char *argv[]) {
                 }
 
                 std::cout << "Enter the level of message (0-INFO, 1-WARN, 2-ERROR):\n";
-                std::cin >> level;
-                validateData(level);
+                enterCorrectData(level);
                 data.log_level = static_cast<LoggerLevel>(level);
 
                 
@@ -104,8 +102,7 @@ int main(int argc, char *argv[]) {
         
         case 1:
             std::cout << "Enter a new default level (0-INFO, 1-WARN, 2-ERROR):\n";
-            std::cin >> level;
-            validateData(level);
+            enterCorrectData(level);
 
             logger.changeLevel(static_cast<LoggerLevel>(level));
 
@@ -124,14 +121,14 @@ int main(int argc, char *argv[]) {
 }
 
 
-// validation functions
 
-void validateData(std::string& filename, int& level) {
+
+// validation functions
+void enterCorrectData(std::string& filename, int& level) {
     std::cout << "Enter file name and default level of logging (0-INFO, 1-WARN, 2-ERROR)\n"
                  "For example, \"test.txt 1\"\n";
 
     std::cin >> filename >> level;
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
     while (filename.length() == 0 or level < 0 or level > 2 or std::cin.fail()) {
         std::cin.clear();
@@ -140,9 +137,12 @@ void validateData(std::string& filename, int& level) {
         std::cout << "Input data is incorrect. Try again\n";
         std::cin >> filename >> level;
     }  
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 }
 
-void validateData(int& level) {
+void enterCorrectData(int& level) {
+    std::cin >> level;
+
     while (level < 0 or level > 2 or std::cin.fail()) {
         std::cin.clear();
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
@@ -150,4 +150,5 @@ void validateData(int& level) {
         std::cout << "Value is incorrect. Try again\n";
         std::cin >> level;
     }
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 }
